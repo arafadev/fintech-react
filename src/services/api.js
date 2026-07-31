@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const API_BASE_URL = "http://13.48.128.58/api"; //local url
+const API_BASE_URL = "http://13.48.128.58:8090/api"; //local url
 
 
 

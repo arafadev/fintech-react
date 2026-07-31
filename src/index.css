@@ -495,6 +495,14 @@ body {
   outline: none;
 }
 
+.field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #c62828;
+}
+
 .auth-button {
   width: 100%;
   padding: 12px;

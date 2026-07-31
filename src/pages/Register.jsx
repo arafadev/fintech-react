@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiService } from "../services/api";
+import { getApiErrorMessage } from "../utils/apiError";
 
 
 const Register = () => {
@@ -15,22 +16,32 @@ const Register = () => {
 
 
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
+        if (fieldErrors[name]) {
+            setFieldErrors((prev) => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true)
         setError('')
+        setFieldErrors({})
         setSuccess('')
 
         try {
@@ -46,8 +57,15 @@ const Register = () => {
             }
 
         } catch (error) {
+            const body = error.response?.data;
+            const errors = body?.data;
 
-            setError(error.response?.data?.message || error.message || 'Registration failed')
+            if (errors && typeof errors === 'object' && !Array.isArray(errors)) {
+                setFieldErrors(errors);
+                setError(Object.values(errors).filter(Boolean).join('. ') || body.message || 'Validation failed');
+            } else {
+                setError(getApiErrorMessage(error, 'Registration failed'));
+            }
 
         } finally {
             setLoading(false)
@@ -76,6 +94,9 @@ const Register = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {fieldErrors.firstName && (
+                                <span className="field-error">{fieldErrors.firstName}</span>
+                            )}
                         </div>
 
                         <div className="form-group">
@@ -88,6 +109,9 @@ const Register = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {fieldErrors.lastName && (
+                                <span className="field-error">{fieldErrors.lastName}</span>
+                            )}
                         </div>
                     </div>
 
@@ -101,6 +125,9 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
+                        {fieldErrors.email && (
+                            <span className="field-error">{fieldErrors.email}</span>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -113,6 +140,9 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
+                        {fieldErrors.phoneNumber && (
+                            <span className="field-error">{fieldErrors.phoneNumber}</span>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -125,6 +155,9 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
+                        {fieldErrors.password && (
+                            <span className="field-error">{fieldErrors.password}</span>
+                        )}
                     </div>
 
                     <button
